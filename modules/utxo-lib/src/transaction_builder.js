@@ -837,9 +837,38 @@ TransactionBuilder.prototype.getSigningData = function (vin, kpPubKey, redeemScr
   return signatureHash
 }
 
-TransactionBuilder.prototype.signInput = function (vin, sin, signature, hashType) {
-  debug('Try signing transaction: (input: %d, hashType: %d, witnessVal: %s, witnessScript: %j)', vin, hashType)
+TransactionBuilder.prototype.prepareInput = function (vin, kpPubKey, redeemScript, witnessValue, witnessScript) {
+  debug('Try signing transaction: (input: %d, redeemScript: %s, witnessVal: %s, witnessScript: %j)', vin, redeemScript, witnessValue, witnessScript)
   debug('Transaction Builder network: %j', this.network)
+
+  if (!this.inputs[vin]) throw new Error('No input at index: ' + vin)
+  const input = this.inputs[vin]
+  // if redeemScript was previously provided, enforce consistency
+  if (input.redeemScript !== undefined &&
+    redeemScript &&
+      !input.redeemScript.equals(redeemScript)) {
+    throw new Error('Inconsistent redeemScript')
+  }
+ 
+  if (!canSign(input)) {
+    if (witnessValue !== undefined) {
+      if (input.value !== undefined && input.value !== witnessValue) throw new Error('Input didn\'t match witnessValue')
+      typeforce(types.Satoshi, witnessValue)
+      input.value = witnessValue
+    }
+
+    debug('Preparing input %d for signing', vin)
+
+    if (!canSign(input)) prepareInput(input, kpPubKey, redeemScript, witnessValue, witnessScript)
+    if (!canSign(input)) throw Error(input.prevOutType + ' not supported')
+  }
+}
+
+TransactionBuilder.prototype.signInput = function (vin, sin, signature, hashType) {
+  debug('Try signing transaction: (input: %d, hashType: %d)', vin, hashType)
+  debug('Transaction Builder network: %j', this.network)
+  
+  hashType = hashType || Transaction.SIGHASH_ALL
   const input = this.inputs[vin]
   if (!canSign(input)) return
   
@@ -860,10 +889,10 @@ TransactionBuilder.prototype.sign = function (vin, keyPair, redeemScript, hashTy
 
   const kpPubKey = keyPair.publicKey || keyPair.getPublicKeyBuffer()
 
-  this.prepareInput(input, kpPubKey, redeemScript, hashType, witnessValue, witnessScript)
+  this.prepareInput(vin, kpPubKey, redeemScript, witnessValue, witnessScript)
 
   // ready to sign
-  const signatureHash = this.getSigningData(input, kpPubKey, redeemScript, hashType, witnessValue, witnessScript)
+  const signatureHash = this.getSigningData(vin, kpPubKey, redeemScript, hashType, witnessValue, witnessScript)
 
   // enforce in order signing of public keys
   const signed = input.pubKeys.some(function(pubKey, i) {
