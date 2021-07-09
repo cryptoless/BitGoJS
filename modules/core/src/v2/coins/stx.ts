@@ -23,6 +23,7 @@ import { InvalidAddressError } from '../../errors';
 
 const co = Bluebird.coroutine;
 
+// eslint-disable-next-line no-unused-vars
 interface SupplementGenerateWalletOptions {
   rootPrivateKey?: string;
 }
@@ -50,7 +51,9 @@ export interface ExplainTransactionOptions {
 
 export interface StxSignTransactionOptions extends SignTransactionOptions {
   txPrebuild: TransactionPrebuild;
-  prv: string;
+  prv: string | string[];
+  pubKeys?: string[];
+  numberSignature?: number;
 }
 export interface TransactionPrebuild extends BaseTransactionPrebuild {
   txHex: string;
@@ -96,8 +99,9 @@ export class Stx extends BaseCoin {
     const { address } = params;
     if (!this.isValidAddress(address)) throw new InvalidAddressError(`invalid address: ${address}`);
 
+    const addressDetails = accountLib.Stx.Utils.getAddressDetails(address);
     try {
-      const [version] = c32addressDecode(address);
+      const [version] = c32addressDecode(addressDetails.address);
       const versionString = accountLib.Stx.AddressVersion[version];
       if (versionString === undefined) throw new InvalidAddressError(`invalid address version: ${address}`);
     } catch (e) {
@@ -157,7 +161,7 @@ export class Stx extends BaseCoin {
 
   isValidAddress(address: string): boolean {
     try {
-      return accountLib.Stx.Utils.isValidAddress(address);
+      return accountLib.Stx.Utils.isValidAddressWithPaymentId(address);
     } catch (e) {
       return false;
     }
@@ -173,12 +177,13 @@ export class Stx extends BaseCoin {
     callback?: NodeCallback<SignedTransaction>
   ): Bluebird<SignedTransaction> {
     const self = this;
-
     return co<SignedTransaction>(function* () {
       const factory = accountLib.register(self.getChain(), accountLib.Stx.TransactionBuilderFactory);
       const txBuilder = factory.from(params.txPrebuild.txHex);
-      txBuilder.sign({ key: params.prv });
-
+      const prvKeys = params.prv instanceof Array ? params.prv : [params.prv];
+      prvKeys.forEach((prv) => txBuilder.sign({ key: prv }));
+      if (params.pubKeys) txBuilder.fromPubKey(params.pubKeys);
+      if (params.numberSignature) txBuilder.numberSignatures(params.numberSignature);
       const transaction: any = yield txBuilder.build();
 
       if (!transaction) {

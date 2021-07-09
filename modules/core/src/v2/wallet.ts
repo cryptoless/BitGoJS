@@ -332,6 +332,7 @@ export interface SubmitTransactionOptions {
   otp?: string;
   txHex?: string;
   halfSigned?: string;
+  comment?: string;
 }
 
 export interface SendOptions {
@@ -503,6 +504,7 @@ export class Wallet {
       'lastLedgerSequence', 'ledgerSequenceDelta', 'maxFee', 'maxFeeRate', 'maxValue', 'memo', 'transferId', 'message', 'minConfirms',
       'minValue', 'noSplitChange', 'numBlocks', 'recipients', 'reservation', 'sequenceId', 'strategy',
       'targetWalletUnspents', 'trustlines', 'type', 'unspents', 'nonParticipation', 'validFromBlock', 'validToBlock', 'messageKey',
+      'stakingOptions'
     ];
   }
 
@@ -1096,6 +1098,7 @@ export class Wallet {
     }
 
     return this.bitgo.post(this.url('/freeze'))
+      .send(params)
       .result()
       .nodeify(callback);
   }
@@ -1957,7 +1960,7 @@ export class Wallet {
     }
 
     if (_.isUndefined(params.address)) {
-      throw new Error('missing required parameter amount');
+      throw new Error('missing required parameter address');
     }
 
     const coin = this.baseCoin;
@@ -2046,6 +2049,7 @@ export class Wallet {
         'lastLedgerSequence', 'ledgerSequenceDelta', 'gasPrice',
         'noSplitChange', 'unspents', 'comment', 'otp', 'changeAddress',
         'instant', 'memo', 'type', 'trustlines', 'transferId',
+        'stakingOptions'
       ]);
       const finalTxParams = _.extend({}, halfSignedTransaction, selectParams);
       self.bitgo.setRequestTracer(reqId);
