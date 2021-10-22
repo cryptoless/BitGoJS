@@ -1,5 +1,5 @@
 {
-  "name": "@bitgo/utxo-lib",
+  "name": "@cryptoless/utxo-lib",
   "version": "2.0.0",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./dist/src/index.js",
@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/BitGo/BitGoJS.git",
+    "url": "https://github.com/cryptoless/BitGoJS.git",
     "directory": "modules/utxo-lib"
   },
   "files": [
@@ -46,7 +46,7 @@
   "dependencies": {
     "@bitgo/blake2b": "^3.0.1",
     "bitcoin-ops": "^1.3.0",
-    "bitcoinjs-lib": "git+https://github.com/BitGo/bitcoinjs-lib.git#e445ccbd706fc0bc00646e6942fdc5177bbf1061",
+    "bitcoinjs-lib": "git+https://github.com/cryptoless/bitcoinjs-lib.git#b870a6ec65610bded74d5d1e77c4038c49f96541",
     "bs58check": "^2.0.0",
     "typeforce": "^1.11.3",
     "varuint-bitcoin": "^1.0.4"
