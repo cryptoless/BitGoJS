@@ -19,7 +19,6 @@
     "javascript"
   ],
   "scripts": {
-    "postinstall": "npm run build",
     "prepare": "npm run build",
     "build": "tsc --project tsconfig.build.json",
     "coverage-report": "nyc report --reporter=lcov",

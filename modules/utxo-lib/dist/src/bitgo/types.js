@@ -1,0 +1,8 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isTriple = void 0;
+function isTriple(arr) {
+    return arr.length === 3;
+}
+exports.isTriple = isTriple;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidHlwZXMuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi9zcmMvYml0Z28vdHlwZXMudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7O0FBRUEsU0FBZ0IsUUFBUSxDQUFJLEdBQVE7SUFDbEMsT0FBTyxHQUFHLENBQUMsTUFBTSxLQUFLLENBQUMsQ0FBQztBQUMxQixDQUFDO0FBRkQsNEJBRUMiLCJzb3VyY2VzQ29udGVudCI6WyJleHBvcnQgdHlwZSBUcmlwbGU8VD4gPSBbVCwgVCwgVF07XG5cbmV4cG9ydCBmdW5jdGlvbiBpc1RyaXBsZTxUPihhcnI6IFRbXSk6IGFyciBpcyBUcmlwbGU8VD4ge1xuICByZXR1cm4gYXJyLmxlbmd0aCA9PT0gMztcbn1cbiJdfQ==
