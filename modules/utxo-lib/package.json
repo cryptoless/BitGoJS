@@ -1,8 +1,9 @@
 {
-  "name": "@cryptoless/utxo-lib",
+  "name": "@bitgo/utxo-lib",
   "version": "2.0.0",
   "description": "Client-side Bitcoin JavaScript library",
   "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "engines": {
     "node": ">=10.22.0 <17",
     "npm": ">=3.10.10"
