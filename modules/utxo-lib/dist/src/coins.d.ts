@@ -13,7 +13,9 @@ export declare function getNetworkName(network: Network): string | undefined;
  * @param {Network} network
  * @returns {Object} the mainnet corresponding to a testnet
  */
-export declare function getMainnet(network: Network): Network;
+export declare function getMainnet(network: Network & {
+    forkChain?: Network;
+}, recurse?: boolean): Network;
 /**
  * @param {Network} network
  * @returns {boolean} true iff network is a mainnet
