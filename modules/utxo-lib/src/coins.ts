@@ -21,7 +21,7 @@ export function getNetworkName(network: Network): string | undefined {
  * @param {Network} network
  * @returns {Object} the mainnet corresponding to a testnet
  */
-export function getMainnet(network: Network): Network {
+export function getMainnet(network: Network & { forkChain?: Network }): Network {
   switch (network) {
     case networks.bitcoin:
     case networks.testnet:
@@ -51,6 +51,7 @@ export function getMainnet(network: Network): Network {
     case networks.zcashTest:
       return networks.zcash;
   }
+  if (network.forkChain) return network.forkChain;
   throw new TypeError(`invalid network`);
 }
 
