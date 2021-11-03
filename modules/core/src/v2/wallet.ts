@@ -83,12 +83,13 @@ export interface PrebuildTransactionOptions {
     maxValue?: number;
     sequenceId?: string;
     lastLedgerSequence?: number;
-    ledgerSequenceDelta?: string;
+    ledgerSequenceDelta?: number;
     gasPrice?: number;
     noSplitChange?: boolean;
     unspents?: any[];
     changeAddress?: string;
     type?: string;
+    closeRemainderTo?:string;
     nonParticipation?: boolean;
     validFromBlock?: number;
     validToBlock?: number;
@@ -351,6 +352,7 @@ export interface SendOptions {
   prv?: string;
   minConfirms?: number;
   enforceMinConfirmsForChange?: boolean;
+  custodianTransactionId?: string;
   [index: string]: unknown;
 }
 
@@ -373,7 +375,7 @@ export interface SendManyOptions {
   maxValue?: number;
   sequenceId?: string;
   lastLedgerSequence?: number;
-  ledgerSequenceDelta?: string;
+  ledgerSequenceDelta?: number;
   gasPrice?: number;
   noSplitChange?: boolean;
   unspents?: string[];
@@ -513,7 +515,7 @@ export class Wallet {
       'lastLedgerSequence', 'ledgerSequenceDelta', 'maxFee', 'maxFeeRate', 'maxValue', 'memo', 'transferId', 'message', 'minConfirms',
       'minValue', 'noSplitChange', 'numBlocks', 'recipients', 'reservation', 'sequenceId', 'strategy',
       'targetWalletUnspents', 'trustlines', 'type', 'unspents', 'nonParticipation', 'validFromBlock', 'validToBlock', 'messageKey',
-      'stakingOptions', 'eip1559', 'keyregTxBase64',
+      'stakingOptions', 'eip1559', 'keyregTxBase64', 'closeRemainderTo',
     ];
   }
 
@@ -1675,7 +1677,7 @@ export class Wallet {
    * @param {Number} params.maxValue - Ignore unspents larger than this amount of base units
    * @param {Number} params.sequenceId - The sequence ID of the transaction
    * @param {Number} params.lastLedgerSequence - Absolute max ledger the transaction should be accepted in, whereafter it will be rejected.
-   * @param {String} params.ledgerSequenceDelta - Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
+   * @param {Number} params.ledgerSequenceDelta - Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
    * @param {Number} params.gasPrice - Custom gas price to be used for sending the transaction
    * @param {Number} params.gasLimit - Custom gas limit to be used for sending the transaction
    * @param {Boolean} params.noSplitChange - Set to true to disable automatic change splitting for purposes of unspent management
@@ -1986,6 +1988,7 @@ export class Wallet {
    * @param params.amount - the amount in satoshis/wei/base value to be sent
    * @param params.message - optional message to attach to transaction
    * @param params.data - [Ethereum Specific] optional data to pass to transaction
+   * @param params.custodianTransactionId - [Ethereum/MMI Specific] id of transaction created via metamask
    * @param params.walletPassphrase - the passphrase to be used to decrypt the user key on this wallet
    * @param params.prv - the private key in string form, if walletPassphrase is not available
    * @param params.minConfirms - the minimum confirmation threshold for inputs
@@ -2047,7 +2050,7 @@ export class Wallet {
    * @param {Number} params.maxValue - Ignore unspents larger than this amount of satoshis
    * @param {Number} params.sequenceId - The sequence ID of the transaction
    * @param {Number} params.lastLedgerSequence - Absolute max ledger the transaction should be accepted in, whereafter it will be rejected.
-   * @param {String} params.ledgerSequenceDelta - Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
+   * @param {Number} params.ledgerSequenceDelta - Relative ledger height (in relation to the current ledger) that the transaction should be accepted in, whereafter it will be rejected.
    * @param {Number} params.gasPrice - Custom gas price to be used for sending the transaction
    * @param {Boolean} params.noSplitChange - Set to true to disable automatic change splitting for purposes of unspent management
    * @param {Array} params.unspents - The unspents to use in the transaction. Each unspent should be in the form prevTxId:nOutput
@@ -2092,7 +2095,6 @@ export class Wallet {
         'stakingOptions',
       ]);
       const finalTxParams = _.extend({}, halfSignedTransaction, selectParams);
-
       self.bitgo.setRequestTracer(reqId);
       return self.bitgo.post(self.url('/tx/send'))
         .send(finalTxParams)

@@ -7,7 +7,6 @@ import * as AlgoResources from '../../../resources/algo';
 describe('utils', () => {
   const {
     accounts: { account1, account2, account3 },
-    transactions: { payTxn, nonParticipationTxn, keyregTxn },
     base64Txn: { validTxn, invalidTxn, invalidTxn2 },
   } = AlgoResources;
 
@@ -121,50 +120,6 @@ describe('utils', () => {
       () => Algo.algoUtils.stellarAddressToAlgoAddress(algoAddress),
       'Neither an Algorand address nor a stellar pubkey',
     );
-  });
-
-  it('should build fee data over Pay Txn ,Non Participation Txn and KeyReg Txn', () => {
-    const feeRate = 1;
-    const feeDataKeyRegTxn = utils.getFeeData(payTxn, feeRate);
-    should.equal(feeDataKeyRegTxn.feeInfo.feeRate, 4);
-    should.equal(feeDataKeyRegTxn.feeRate, 4);
-    should.equal(feeDataKeyRegTxn.feeInfo.fee, 1000);
-    should.equal(feeDataKeyRegTxn.feeInfo.size, 240);
-
-    const feeDataNonParticipationTxn = utils.getFeeData(nonParticipationTxn, feeRate);
-    should.equal(feeDataNonParticipationTxn.feeInfo.feeRate, 5);
-    should.equal(feeDataNonParticipationTxn.feeRate, 5);
-    should.equal(feeDataNonParticipationTxn.feeInfo.fee, 1000);
-    should.equal(feeDataNonParticipationTxn.feeInfo.size, 207);
-
-    const feeDataKeyregTxn = utils.getFeeData(keyregTxn, feeRate);
-    should.equal(feeDataKeyregTxn.feeInfo.feeRate, 3);
-    should.equal(feeDataKeyregTxn.feeRate, 3);
-    should.equal(feeDataKeyregTxn.feeInfo.fee, 1000);
-    should.equal(feeDataKeyregTxn.feeInfo.size, 320);
-  });
-
-  it('should build feeData for Keyreg transaction with a high feeRate ', function () {
-    const feeRate = 150;
-    const feeDataKeyregTxn = utils.getFeeData(keyregTxn, feeRate);
-    should.equal(feeDataKeyregTxn.feeInfo.feeRate, 150);
-    should.equal(feeDataKeyregTxn.feeRate, 150);
-    should.equal(feeDataKeyregTxn.feeInfo.fee, 48000);
-    should.equal(feeDataKeyregTxn.feeInfo.size, 320);
-  });
-
-  it('should build feeData for Keyreg transaction with 0 as feeRate ', function () {
-    const feeRate = 0;
-    const feeDataKeyregTxn = utils.getFeeData(keyregTxn, feeRate);
-    should.equal(feeDataKeyregTxn.feeInfo.feeRate, 3);
-    should.equal(feeDataKeyregTxn.feeRate, 3);
-    should.equal(feeDataKeyregTxn.feeInfo.fee, 1000);
-    should.equal(feeDataKeyregTxn.feeInfo.size, 320);
-  });
-
-  it('should fail building fee info because fee is negative', () => {
-    const feeRate = -1;
-    should.throws(() => utils.getFeeData(payTxn, feeRate), 'Error: FeeRate must be integer positive number ');
   });
 
   it('should decode same address', () => {
@@ -322,21 +277,6 @@ describe('utils', () => {
     should.equal(isValid, false);
   });
 
-  it('getTransactionByteSize should generate the size correct para payTxn', () => {
-    const size = Algo.algoUtils.getTransactionByteSize(payTxn);
-    should.equal(size, 240);
-  });
-
-  it('getTransactionByteSize should generate the size correct para nonParticipationTxn', () => {
-    const size = Algo.algoUtils.getTransactionByteSize(nonParticipationTxn);
-    should.equal(size, 207);
-  });
-
-  it('getTransactionByteSize should generate the size correct para keyregTxn', () => {
-    const size = Algo.algoUtils.getTransactionByteSize(keyregTxn);
-    should.equal(size, 320);
-  });
-
   it('Should be able to get a txID from a multising Tx', () => {
     const rawTxn = validTxn.txn;
     const txId = Algo.algoUtils.getMultisigTxID(rawTxn);
@@ -358,5 +298,41 @@ describe('utils', () => {
     should.throws(() => {
       Algo.algoUtils.getMultisigTxID(rawTxn);
     }, 'Error: The object contains empty or 0 values. First empty or 0 value encountered during encoding: msig');
+  });
+
+  it('Should return enableToken', () => {
+    const amount = '0';
+    const from = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+    const to = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+    const closeRemainderTo = '';
+
+    Algo.algoUtils.getTokenTxType(amount, from, to, closeRemainderTo).should.equal('enableToken');
+  });
+
+  it('Should return disableToken', () => {
+    const amount = '0';
+    const from = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+    const to = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+    const closeRemainderTo = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+
+    Algo.algoUtils.getTokenTxType(amount, from, to, closeRemainderTo).should.equal('disableToken');
+  });
+
+  it('Should return transferToken when "from" and "to" are different ', () => {
+    const amount = '0';
+    const from = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+    const to = 'SP745JJR4KPRQEXJZHVIEN736LYTL2T2DFMG3OIIFJBV66K73PHNMDCZVM';
+    const closeRemainderTo = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+
+    Algo.algoUtils.getTokenTxType(amount, from, to, closeRemainderTo).should.equal('transferToken');
+  });
+
+  it('Should return transferToken when amount is not 0', () => {
+    const amount = '1000';
+    const from = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+    const to = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+    const closeRemainderTo = 'R275HNKEXC3AI3CYL2PPOGP2AFA4XCRDO2CCREGCVDX6OJAZ54MBD7VLYA';
+
+    Algo.algoUtils.getTokenTxType(amount, from, to, closeRemainderTo).should.equal('transferToken');
   });
 });

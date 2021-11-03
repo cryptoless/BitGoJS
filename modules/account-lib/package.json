@@ -1,6 +1,6 @@
 {
   "name": "@bitgo/account-lib",
-  "version": "2.16.0",
+  "version": "2.17.0",
   "description": "BitGo's account library functions",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -36,11 +36,11 @@
   "dependencies": {
     "@bitgo/blake2b": "^3.0.1",
     "@bitgo/bls": "^0.1.0",
-    "@bitgo/statics": "^6.13.0",
+    "@bitgo/statics": "^6.14.0",
     "@celo/contractkit": "^1.2.4",
     "@ethereumjs/common": "^2.4.0",
     "@ethereumjs/tx": "^3.3.0",
-    "@hashgraph/sdk": "^2.0.17",
+    "@hashgraph/sdk": "~2.3.0",
     "@stablelib/hex": "^1.0.0",
     "@stablelib/sha384": "^1.0.0",
     "@stacks/transactions": "2.0.1",
@@ -65,7 +65,7 @@
     "long": "^4.0.0",
     "protobufjs": "^6.8.9",
     "secp256k1": "4.0.2",
-    "stellar-sdk": "^8.1.1",
+    "stellar-sdk": "^9.0.1",
     "tronweb": "^3.2.6",
     "tweetnacl": "^1.0.3"
   },
@@ -108,6 +108,5 @@
       "eslint --fix",
       "git add"
     ]
-  },
-  "gitHead": "6ffe520a2c9351d3544a52b5b908246d4903068b"
+  }
 }

@@ -21,7 +21,7 @@ import {
   SignTransactionOptions as BaseSignTransactionOptions,
 } from '../baseCoin';
 import { KeyIndices } from '../keychains';
-import { NodeCallback } from '../types';
+import { NodeCallback, TokenManagementType } from '../types';
 
 const co = Bluebird.coroutine;
 
@@ -99,8 +99,8 @@ export interface VerifiedTransactionParameters {
 }
 
 export class Algo extends BaseCoin {
-  readonly ENABLE_TOKEN = 'enabletoken';
-  readonly DISABLE_TOKEN = 'disabletoken';
+  readonly ENABLE_TOKEN: TokenManagementType = 'enabletoken';
+  readonly DISABLE_TOKEN: TokenManagementType = 'disabletoken';
 
   constructor(bitgo: BitGo) {
     super(bitgo);
@@ -209,7 +209,7 @@ export class Algo extends BaseCoin {
       if (Buffer.isBuffer(message)) {
         message = message.toString('base64');
       }
-      return algoKeypair.signMessage(message);
+      return Buffer.from(algoKeypair.signMessage(message));
     })
       .call(this)
       .asCallback(callback);
@@ -257,8 +257,14 @@ export class Algo extends BaseCoin {
 
         const isTokenTx = this.isTokenTx(txJson.type);
         if (isTokenTx) {
+          const type = accountLib.Algo.algoUtils.getTokenTxType(
+            txJson.amount,
+            txJson.from,
+            txJson.to,
+            txJson.closeRemainderTo
+          );
           operations.push({
-            type: this.getTokenTxType(txJson),
+            type: type,
             coin: `${this.getChain()}:${txJson.tokenId}`,
           });
         }
@@ -327,19 +333,6 @@ export class Algo extends BaseCoin {
     })
       .call(this)
       .asCallback(callback);
-  }
-
-  /**
-   * returns if a tx is an enable or disable token tx
-   * @param tx - tx in JSON format
-   * @returns true if it's a token tx
-   */
-  getTokenTxType(tx: { amount: string; closeRemainderTo: string; from: string; to: string }): string {
-    let type = 'transferToken';
-    if (tx.amount === '0' && tx.from === tx.to) {
-      type = !tx.closeRemainderTo ? 'enableToken' : 'disableToken';
-    }
-    return type;
   }
 
   /**
@@ -426,6 +419,7 @@ export class Algo extends BaseCoin {
     });
     // TODO(https://bitgoinc.atlassian.net/browse/STLX-6067): fix the number of signers using
     // should be similar to other coins implementation
+    // If we have a number with digits to eliminate them without taking any rounding criteria.
     const numberSigners = Math.trunc(signers.length / 2) + 1;
     return { txHex, addressVersion, signers, prv, isHalfSigned, numberSigners };
   }

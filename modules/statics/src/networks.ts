@@ -337,7 +337,7 @@ class Eos extends Mainnet implements AccountNetwork {
 class EosTestnet extends Testnet implements AccountNetwork {
   name = 'EosTestnet';
   family = CoinFamily.EOS;
-  explorerUrl = 'https://jungle.bloks.io/transaction/';
+  explorerUrl = 'https://local.bloks.io/transaction/';
 }
 
 class Hedera extends Mainnet implements AccountNetwork {
@@ -464,7 +464,7 @@ class Xrp extends Mainnet implements AccountNetwork {
 class XrpTestnet extends Testnet implements AccountNetwork {
   name = 'XrpTestnet';
   family = CoinFamily.XRP;
-  explorerUrl = 'https://xrpcharts.ripple.com/#/transactions/';
+  explorerUrl = 'https://test.bithomp.com/explorer/';
 }
 
 class Xtz extends Mainnet implements AccountNetwork {
